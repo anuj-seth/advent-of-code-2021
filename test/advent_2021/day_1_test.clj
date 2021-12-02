@@ -1,17 +1,12 @@
 (ns advent-2021.day-1-test
   (:require [clojure.test :refer :all]
-            [clojure.java.io :as io]
-            [clojure.string :as string]
-            [advent-2021.day-1 :as day-1]))
+            [advent-2021.day-1 :as day-1]
+            [advent-2021.utils :as utils]))
 
-(defn input-lines
-  [file-name]
-  (string/split (slurp (io/resource file-name))
-                #"\n"))
 
 (deftest day-1-test
   (let [puzzle-data (map #(Integer/parseInt %)
-                         (input-lines "day_1.txt"))]
+                         (utils/input-lines "day_1.txt"))]
     (testing "day 1 part 1"
       (let [sliding-windows [2]
             pre-comparison-fn identity]
