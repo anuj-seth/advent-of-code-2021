@@ -10,51 +10,32 @@
             (range))
        (apply +)))
 
+(defn- frequent-bit
+  [key-fn cmp s]
+  (first (first (sort-by key-fn
+                         cmp
+                         (frequencies s)))))
 (defn day-3
   [diagnostics]
-  (let [bit-frequencies (->> diagnostics
-                             (map seq)
-                             (apply map (comp frequencies vector)))
-        gamma (->> bit-frequencies
-                   (map #(first (sort-by val > %)))
-                   (map first)
+  (let [bit-sequences (map seq diagnostics)
+        gamma (->> bit-sequences
+                   (apply map (fn [& s]
+                                (frequent-bit val > s)))
                    (binary-seq-to-decimal))
-        epsilon (->> bit-frequencies
-                     (map #(first (sort-by val < %)))
-                     (map first)
+        epsilon (->> bit-sequences
+                     (apply map (fn [& s]
+                                  (frequent-bit val < s)))
                      (binary-seq-to-decimal))]
     (* gamma epsilon)))
-
-(defn- frequencies-at-position
-  [s n]
-  (frequencies (map #(nth % n )
-                    s)))
-
-(defn- frequency-at-position
-  [cmp s n]
-  (first (first (sort-by (juxt val key)
-                         cmp
-                         (frequencies-at-position s n)))))
-
-(defn- max-frequency-at-position
-  [s n]
-  (frequency-at-position #(compare %2 %1)
-                         s
-                         n))
-
-(defn- min-frequency-at-position
-  [s n]
-  (frequency-at-position compare
-                         s
-                         n))
 
 (defn support-rating
   ([s bit-criteria] (support-rating s bit-criteria 0))
   ([s bit-criteria bit-position]
    (if (= 1 (count s))
      (first s)
-     (let [bit (bit-criteria s
-                             bit-position)
+     (let [bits-at-position (map #(nth % bit-position)
+                                 s) 
+           bit (bit-criteria bits-at-position)
            remaining (filter #(= bit (nth % bit-position))
                              s)]
        (recur remaining
@@ -63,8 +44,10 @@
 
 (defn day-3-part-2
   [diagnostics]
-  (let [bit-sequences (map seq diagnostics)]
-    (->> [max-frequency-at-position min-frequency-at-position]
+  (let [bit-sequences (map seq diagnostics)
+        most-frequent-bit (partial frequent-bit (juxt val key) #(compare %2 %1))
+        least-frequent-bit (partial frequent-bit (juxt val key) compare)]
+    (->> [most-frequent-bit least-frequent-bit]
          (map #(support-rating bit-sequences %))
          (map binary-seq-to-decimal)
          (apply *))))
