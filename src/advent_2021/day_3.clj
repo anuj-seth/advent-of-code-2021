@@ -45,8 +45,12 @@
 (defn day-3-part-2
   [diagnostics]
   (let [bit-sequences (map seq diagnostics)
-        most-frequent-bit (partial frequent-bit (juxt val key) #(compare %2 %1))
-        least-frequent-bit (partial frequent-bit (juxt val key) compare)]
+        most-frequent-bit (partial frequent-bit
+                                   (juxt val key)
+                                   #(compare %2 %1))
+        least-frequent-bit (partial frequent-bit
+                                    (juxt val key)
+                                    compare)]
     (->> [most-frequent-bit least-frequent-bit]
          (map #(support-rating bit-sequences %))
          (map binary-seq-to-decimal)
